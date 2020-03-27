@@ -40,7 +40,7 @@ function getAvatarFromUsername(username) {
 function writeInfoToFile(answer) {
     fs.writeFile(
         "READMEGeneratorTest.md",
-        `# Title: ${answer.title}\n\n![Simple Badge](https://img.shields.io/badge/License-${answer.license}-<COLOR>.svg\n\n## Description: ${answer.description}\n\n## Table of Constents
+        `# Title: ${answer.title}\n\n![Simple Badge](https://img.shields.io/badge/License-${answer.license}.svg\n\n## Description: ${answer.description}\n\n## Table of Contents
           1. How to Install
 
           2. How to use this program
