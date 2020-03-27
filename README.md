@@ -1,1 +1,1 @@
-# GTReadmeGen
+This is a simple node.js project to generate quality readme files for users quickly.
