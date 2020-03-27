@@ -3,29 +3,42 @@ const inquirer = require("inquirer");
 const fs = require("fs");
 const axios = require("axios");
 
-// prompts to start the readme
-function promptUser() {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "What is the title?",
-        name: "title"
-      },
-      {
-        type: "input",
-        message: "What is a short description for your project?",
-        name: "description"
-      },
-      {
-        type: "input",
-        message: "Any licenses?",
-        name: "license"
-      }
-    ])
-    // function to write the actual readme file as well as pulling in a default looking badge and the table of contents
-    .then(function(answer) {
-      fs.writeFile(
+
+// function using push information to find a users github email from just their username input
+function getEmailFromUsername(username) {
+    const userEmailUrl = `https://api.github.com/users/${username}/events/public`;
+    return axios.get(userEmailUrl).then(function(res){
+        fs.appendFile(
+            "READMEGeneratorTest.md",
+                `## Email me here: ${res.data[0].payload.commits[0].author.email}\n\n`,
+            function(err){
+                if (err) {
+                    throw err;
+                }
+            }
+        )
+    })
+}
+
+// function for pulling users github username
+function getAvatarFromUsername(username) {
+    const userURL = `https://api.github.com/users/${username}`;
+    return axios.get(userURL).then(function(res){
+        fs.appendFile(
+            "READMEGeneratorTest.md",
+            `\n![avatar](${res.data.avatar_url})\n\n`,
+            function(err){
+                if (err) {
+                    throw err;
+                }
+            }
+        )
+    });
+}
+
+// function to write the actual readme file as well as pulling in a default looking badge and the table of contents
+function writeInfoToFile(answer) {
+    fs.writeFile(
         "READMEGeneratorTest.md",
         `# Title: ${answer.title}\n\n![Simple Badge](https://img.shields.io/badge/License-${answer.license}-<COLOR>.svg\n\n## Description: ${answer.description}\n\n## Table of Constents
           1. How to Install
@@ -38,47 +51,40 @@ function promptUser() {
 
           5. Github Information: \n\n`,
         function(err) {
-          if (err) {
-            console.log(err);
-          }
-        }
-      );
-    })
-    // function for pulling users github username
-    .then(function() {
-      inquirer.prompt({
-        type: "input",
-        message: "What is your GitHub?",
-        name: "username"
-      })
-      .then(function({user}){
-        const userURL = `https://api.github.com/users/${username}`;
-        const userEmail = `https://api.github.com/users/${username}/events/public`;
-        axios.get(userURL).then(function(res){
-          fs.appendFile(
-            "READMEGeneratorTest.md",
-            `\n![avatar](${res.data.avatar_url})\n\n`,
-            function(err){
-              if (err) {
-                throw err;
-              }
+            if (err) {
+                console.log(err);
             }
-          )
-        })
-      })
-    });
-    // function using push information to find a users github email from just their username input
-    axios.get(userEmail).then(function(pushinfo){
-      fs.appendFile(
-        "READMEGeneratorTest.md"
-        `## Email me here: ${pushinfo.data[0].payload.commits[0].author.email}\n\n`,
-        function(err){
-          if (err) {
-            throw err;
-          }
         }
-      )
-    })
+    );
 }
+// prompts
+let questions = [
+    {
+        type: "input",
+        message: "What is the title?",
+        name: "title"
+    },
+    {
+        type: "input",
+        message: "What is a short description for your project?",
+        name: "description"
+    },
+    {
+        type: "input",
+        message: "Any licenses?",
+        name: "license"
+    },
+    {
+      type: "input",
+      message: "What is your GitHub?",
+      name: "username"
+    }
+];
 
-promptUser();
+//running prompts
+inquirer.prompt(questions)
+    .then(function(answer) {
+      writeInfoToFile(answer)
+      getAvatarFromUsername(answer.username);
+      getEmailFromUsername(answer.username);
+    });
