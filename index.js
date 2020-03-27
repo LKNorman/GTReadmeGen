@@ -49,11 +49,11 @@ function promptUser() {
       inquirer.prompt({
         type: "input",
         message: "What is your GitHub?",
-        name: "user"
+        name: "username"
       })
       .then(function({user}){
-        const userURL = `https://api.github.com/users/${user}`;
-        const userEmail = `https://api.github.com/users/${user}/events/public`;
+        const userURL = `https://api.github.com/users/${username}`;
+        const userEmail = `https://api.github.com/users/${username}/events/public`;
         axios.get(userURL).then(function(res){
           fs.appendFile(
             "READMEGeneratorTest.md",
@@ -67,4 +67,18 @@ function promptUser() {
         })
       })
     });
+    // function using push information to find a users github email from just their username input
+    axios.get(userEmail).then(function(pushinfo){
+      fs.appendFile(
+        "READMEGeneratorTest.md"
+        `## Email me here: ${pushinfo.data[0].payload.commits[0].author.email}\n\n`,
+        function(err){
+          if (err) {
+            throw err;
+          }
+        }
+      )
+    })
 }
+
+promptUser();
