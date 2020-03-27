@@ -44,4 +44,27 @@ function promptUser() {
         }
       );
     })
+    // function for pulling users github username
+    .then(function() {
+      inquirer.prompt({
+        type: "input",
+        message: "What is your GitHub?",
+        name: "user"
+      })
+      .then(function({user}){
+        const userURL = `https://api.github.com/users/${user}`;
+        const userEmail = `https://api.github.com/users/${user}/events/public`;
+        axios.get(userURL).then(function(res){
+          fs.appendFile(
+            "READMEGeneratorTest.md",
+            `\n![avatar](${res.data.avatar_url})\n\n`,
+            function(err){
+              if (err) {
+                throw err;
+              }
+            }
+          )
+        })
+      })
+    });
 }
